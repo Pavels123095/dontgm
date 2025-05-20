@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useModal } from "@/hooks/use-modal"
 import { Button } from "@/components/ui/button"
@@ -30,6 +29,7 @@ export function ContactFormModal() {
   })
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const isModalOpen = isOpen && type === "contactForm"
 
@@ -42,13 +42,26 @@ export function ContactFormModal() {
     setFormData((prev) => ({ ...prev, subject: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError("")
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Ошибка отправки сообщения")
+      }
+
       setIsSubmitted(true)
 
       // Reset form after 3 seconds and close modal
@@ -63,7 +76,12 @@ export function ContactFormModal() {
         })
         onClose()
       }, 3000)
-    }, 1000)
+    } catch (error) {
+      console.error("Error sending message:", error)
+      setError(error instanceof Error ? error.message : "Произошла ошибка при отправке сообщения")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -76,6 +94,11 @@ export function ContactFormModal() {
               <DialogDescription>Заполните форму ниже, и мы свяжемся с вами в ближайшее время.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 py-4">
+              {error && (
+                <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Ваше имя</Label>

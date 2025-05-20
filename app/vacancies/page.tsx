@@ -1,8 +1,16 @@
-import Image from "next/image"
+"use client"
+import { useState } from "react"
+import VacancyRespondModal from "@/components/modals/vacancy-respond-modal"
+import ResumeSendModal from "@/components/modals/resume-send-modal"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import Image from "next/image"
 
 export default function VacanciesPage() {
+  const [respondOpen, setRespondOpen] = useState(false)
+  const [resumeOpen, setResumeOpen] = useState(false)
+  const [selectedVacancy, setSelectedVacancy] = useState<string | undefined>(undefined)
+
   const vacancies = [
     {
       title: "Инженер-строитель",
@@ -33,6 +41,11 @@ export default function VacanciesPage() {
         "Требуется геолог для работы на объектах добычи полезных ископаемых. Высшее профильное образование, опыт работы от 5 лет.",
     },
   ]
+
+  const openRespond = (vacancy: string) => {
+    setSelectedVacancy(vacancy)
+    setRespondOpen(true)
+  }
 
   return (
     <main className="min-h-screen">
@@ -70,7 +83,7 @@ export default function VacanciesPage() {
                       <p className="text-gray-600">{vacancy.description}</p>
                     </div>
                     <div className="mt-4 md:mt-0 md:ml-4">
-                      <Button className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap">Откликнуться</Button>
+                      <Button className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap" onClick={() => openRespond(vacancy.title)}>Откликнуться</Button>
                     </div>
                   </div>
                 </Card>
@@ -83,7 +96,7 @@ export default function VacanciesPage() {
               <p className="text-gray-600 mb-6">
                 Отправьте нам свое резюме, и мы свяжемся с вами, когда появится подходящая позиция.
               </p>
-              <Button className="bg-blue-600 hover:bg-blue-700">Отправить резюме</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setResumeOpen(true)}>Отправить резюме</Button>
             </div>
           </div>
         </div>
@@ -126,6 +139,9 @@ export default function VacanciesPage() {
           </div>
         </div>
       </section>
+
+      <VacancyRespondModal open={respondOpen} onClose={() => setRespondOpen(false)} vacancy={selectedVacancy} />
+      <ResumeSendModal open={resumeOpen} onClose={() => setResumeOpen(false)} />
     </main>
   )
 }

@@ -1,14 +1,23 @@
+"use client"
+
 import Image from "next/image"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Package, Truck, Factory, Mountain } from "lucide-react"
+import DeliveryCalculatorModal from "@/components/modals/delivery-calculator-modal"
 
 export default function ProductsPage() {
+  const [modalOpen, setModalOpen] = useState(false)
+  const openModal = () => setModalOpen(true)
+  const closeModal = () => setModalOpen(false)
+
   const categories = [
-    { id: "sand", name: "Песок" },
-    { id: "gravel", name: "Щебень" },
-    { id: "concrete", name: "Бетон" },
-    { id: "soil", name: "Грунт" },
+    { id: "sand", name: "Песок", icon: Mountain },
+    { id: "gravel", name: "Щебень", icon: Package },
+    { id: "concrete", name: "Бетон", icon: Factory },
+    { id: "soil", name: "Грунт", icon: Truck },
   ]
 
   const products = {
@@ -137,11 +146,19 @@ export default function ProductsPage() {
             <div className="mb-8">
               <h2 className="text-3xl font-bold mb-6">Наши материалы</h2>
               <TabsList className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                {categories.map((category) => (
-                  <TabsTrigger key={category.id} value={category.id} className="text-base py-3">
-                    {category.name}
-                  </TabsTrigger>
-                ))}
+                {categories.map((category) => {
+                  const Icon = category.icon
+                  return (
+                    <TabsTrigger
+                      key={category.id}
+                      value={category.id}
+                      className="flex items-center gap-2 text-base py-3"
+                    >
+                      <Icon className="w-5 h-5" />
+                      {category.name}
+                    </TabsTrigger>
+                  )
+                })}
               </TabsList>
             </div>
 
@@ -149,13 +166,13 @@ export default function ProductsPage() {
               <TabsContent key={category} value={category} className="mt-0">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {items.map((product) => (
-                    <Card key={product.id} className="overflow-hidden">
+                    <Card key={product.id} className="overflow-hidden group hover:shadow-lg transition-shadow">
                       <div className="h-48 relative">
                         <Image
                           src={product.image || "/placeholder.svg"}
                           alt={product.name}
                           fill
-                          className="object-cover"
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                       <div className="p-6">
@@ -165,7 +182,7 @@ export default function ProductsPage() {
                         </div>
                         <p className="text-gray-600 mb-4">{product.description}</p>
                         <div className="flex space-x-3">
-                          <Button className="bg-blue-600 hover:bg-blue-700 flex-1">Заказать</Button>
+                          <Button className="bg-blue-600 hover:bg-blue-700 flex-1" onClick={openModal}>Заказать</Button>
                           <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                             Подробнее
                           </Button>
@@ -203,7 +220,7 @@ export default function ProductsPage() {
                 Для получения точной информации о стоимости и сроках доставки, пожалуйста, свяжитесь с нашими
                 менеджерами.
               </p>
-              <Button className="bg-blue-600 hover:bg-blue-700">Рассчитать стоимость доставки</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={openModal}>Рассчитать стоимость доставки</Button>
             </div>
           </div>
         </div>
@@ -239,13 +256,15 @@ export default function ProductsPage() {
                 <div className="p-6">
                   <h3 className="text-xl font-semibold mb-3">{offer.title}</h3>
                   <p className="text-gray-600 mb-4">{offer.description}</p>
-                  <Button className="bg-blue-600 hover:bg-blue-700 w-full">Узнать подробнее</Button>
+                  <Button className="bg-blue-600 hover:bg-blue-700 w-full" onClick={openModal}>Узнать подробнее</Button>
                 </div>
               </Card>
             ))}
           </div>
         </div>
       </section>
+
+      <DeliveryCalculatorModal open={modalOpen} onClose={closeModal} />
     </main>
   )
 }

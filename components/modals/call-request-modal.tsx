@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useModal } from "@/hooks/use-modal"
 import { Button } from "@/components/ui/button"
@@ -19,30 +18,64 @@ import { Check } from "lucide-react"
 
 export function CallRequestModal() {
   const { isOpen, type, onClose } = useModal()
-  const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
+  const [formData, setFormData] = useState({
+    name: "",
+    phone: "",
+    preferredTime: "",
+  })
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
   const isModalOpen = isOpen && type === "callRequest"
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError("")
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...formData,
+          subject: "Заказ звонка",
+          message: `Заказ звонка от ${formData.name}. Предпочтительное время: ${formData.preferredTime}`,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Ошибка отправки заявки")
+      }
+
       setIsSubmitted(true)
 
       // Reset form after 3 seconds and close modal
       setTimeout(() => {
         setIsSubmitted(false)
-        setName("")
-        setPhone("")
+        setFormData({
+          name: "",
+          phone: "",
+          preferredTime: "",
+        })
         onClose()
       }, 3000)
-    }, 1000)
+    } catch (error) {
+      console.error("Error sending request:", error)
+      setError(error instanceof Error ? error.message : "Произошла ошибка при отправке заявки")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -53,28 +86,46 @@ export function CallRequestModal() {
             <DialogHeader>
               <DialogTitle className="text-xl">Заказать звонок</DialogTitle>
               <DialogDescription>
-                Оставьте свои контактные данные, и наш специалист свяжется с вами в ближайшее время.
+                Оставьте свои контактные данные, и мы свяжемся с вами в удобное для вас время.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6 py-4">
+            <form onSubmit={handleSubmit} className="space-y-4 py-4">
+              {error && (
+                <div className="p-3 bg-red-100 text-red-700 rounded-md text-sm">
+                  {error}
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="name">Ваше имя</Label>
                 <Input
                   id="name"
+                  name="name"
                   placeholder="Иван Иванов"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={formData.name}
+                  onChange={handleChange}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone">Номер телефона</Label>
+                <Label htmlFor="phone">Телефон</Label>
                 <Input
                   id="phone"
+                  name="phone"
                   type="tel"
                   placeholder="+7 (___) ___-__-__"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="preferredTime">Удобное время для звонка</Label>
+                <Input
+                  id="preferredTime"
+                  name="preferredTime"
+                  placeholder="Например: с 14:00 до 18:00"
+                  value={formData.preferredTime}
+                  onChange={handleChange}
                   required
                 />
               </div>
@@ -92,7 +143,7 @@ export function CallRequestModal() {
             </div>
             <DialogTitle className="text-xl mb-2">Заявка отправлена!</DialogTitle>
             <DialogDescription>
-              Спасибо за обращение. Наш специалист свяжется с вами в ближайшее время.
+              Спасибо за обращение. Мы свяжемся с вами в указанное время.
             </DialogDescription>
           </div>
         )}

@@ -2,10 +2,10 @@
 
 import { create } from "zustand"
 
-export type ModalType = "callRequest" | "contactForm"
+type ModalType = "callRequest" | "contactForm" | null
 
 interface ModalStore {
-  type: ModalType | null
+  type: ModalType
   isOpen: boolean
   onOpen: (type: ModalType) => void
   onClose: () => void

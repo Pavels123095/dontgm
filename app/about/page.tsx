@@ -1,3 +1,5 @@
+"use client"
+import { useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -47,15 +49,23 @@ export default function AboutPage() {
     { value: "10+", label: "регионов присутствия" },
   ]
 
+  const certificates = [
+    { src: "/images/docs/licence1.png", alt: "Сертификат 1" },
+    { src: "/images/docs/licence2.png", alt: "Сертификат 2" },
+    { src: "/images/docs/licence3.png", alt: "Лицензия 1" },
+    { src: "/images/docs/licence4.png", alt: "Свидетельство о допуске" },
+  ]
+  const [lightbox, setLightbox] = useState<{src: string, alt: string} | null>(null)
+
   return (
     <main className="min-h-screen">
       {/* Hero Section */}
       <section className="relative h-[300px]">
         <div className="absolute inset-0">
-          <Image src="/placeholder.svg?height=300&width=1200" alt="О компании" fill className="object-cover" priority />
+          <Image src="/images/about.png" alt="О компании" fill className="object-cover" priority />
         </div>
         <div className="relative inset-0 bg-black/60">
-          <div className="container mx-auto px-4 h-full flex flex-col justify-center">
+          <div className="container mx-auto py-4 px-4 h-full flex flex-col justify-center">
             <h1 className="text-4xl font-bold text-white mb-4">О компании</h1>
             <p className="text-xl text-white max-w-2xl">
               Многолетний опыт и профессионализм в сфере промышленного строительства и добычи полезных ископаемых
@@ -85,9 +95,10 @@ export default function AboutPage() {
             </div>
             <div className="md:w-1/2 relative h-[400px]">
               <Image
-                src="/placeholder.svg?height=400&width=600"
+                width={400}
+                height={400}
+                src="/images/logo.jpg"
                 alt="О компании"
-                fill
                 className="object-cover rounded-lg"
               />
             </div>
@@ -220,24 +231,32 @@ export default function AboutPage() {
                   <span>Свидетельство СРО</span>
                 </li>
               </ul>
-              <Button className="bg-blue-600 hover:bg-blue-700">Смотреть все сертификаты</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700" onClick={() => setLightbox(certificates[0])}>Смотреть все сертификаты</Button>
             </div>
-            <div className="md:w-1/2 grid grid-cols-2 gap-6">
-              {Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="relative h-48 border border-gray-200 p-4 flex items-center justify-center">
-                  <Image
-                    src={`/placeholder.svg?height=150&width=150&text=Сертификат ${index + 1}`}
-                    alt={`Сертификат ${index + 1}`}
-                    width={150}
-                    height={150}
-                    className="object-contain"
-                  />
+            <div className="md:w-1/2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {certificates.map((cert, idx) => (
+                <div key={idx} className="cursor-pointer group" onClick={() => setLightbox(cert)}>
+                  <div className="overflow-hidden rounded shadow-md group-hover:shadow-xl transition-shadow">
+                    <Image src={cert.src} alt={cert.alt} width={230} height={290} className="object-cover w-full h-auto" />
+                  </div>
+                  <div className="text-center text-sm mt-2 text-gray-700">{cert.alt}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Lightbox */}
+      {lightbox && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setLightbox(null)}>
+          <div className="relative max-w-full max-h-full p-4" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-2 right-2 text-white text-2xl" onClick={() => setLightbox(null)}>&times;</button>
+            <Image src={lightbox.src} alt={lightbox.alt} width={600} height={800} className="object-contain max-h-[80vh] max-w-[90vw] rounded shadow-lg" />
+            <div className="text-center text-white mt-4 text-lg">{lightbox.alt}</div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -1,8 +1,15 @@
+"use client"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import ClientButtons from "@/components/client-buttons"
+import { useState } from "react"
+import DeliveryCalculatorModal from "@/components/modals/delivery-calculator-modal"
 
 export default function WorkTypesPage() {
+  const [modalOpen, setModalOpen] = useState(false)
+  const openModal = () => setModalOpen(true)
+  const closeModal = () => setModalOpen(false)
   const workTypes = [
     {
       id: "excavation",
@@ -125,10 +132,10 @@ export default function WorkTypesPage() {
                   </Accordion>
 
                   <div className="flex space-x-4">
-                    <Button className="bg-blue-600 hover:bg-blue-700">Заказать услугу</Button>
-                    <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                    <Button className="bg-blue-600 hover:bg-blue-700" onClick={openModal}>Заказать услугу</Button>
+                    <ClientButtons buttonType="contactForm" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                       Узнать стоимость
-                    </Button>
+                    </ClientButtons>
                   </div>
                 </div>
               </div>
@@ -147,16 +154,17 @@ export default function WorkTypesPage() {
               Свяжитесь с нами для получения бесплатной консультации.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <ClientButtons buttonType="callRequest" size="lg" className="bg-blue-600 hover:bg-blue-700">
                 Заказать звонок
-              </Button>
-              <Button size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+              </ClientButtons>
+              <ClientButtons buttonType="contactForm" size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
                 Отправить запрос
-              </Button>
+              </ClientButtons>
             </div>
           </div>
         </div>
       </section>
+      <DeliveryCalculatorModal open={modalOpen} onClose={closeModal} />
     </main>
   )
 }

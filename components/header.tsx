@@ -12,7 +12,7 @@ import ClientButtons from "@/components/client-buttons"
 const navItems = [
   { label: "Главная", href: "/" },
   { label: "О компании", href: "/about" },
-  { label: "Услуги", href: "/services" },
+  // { label: "Услуги", href: "/services" },
   { label: "Реализация", href: "/products" },
   { label: "Виды работ", href: "/work-types" },
   { label: "Вакансии", href: "/vacancies" },
